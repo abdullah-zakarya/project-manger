@@ -7,8 +7,8 @@ import {
 } from "typeorm";
 @Entity()
 export class Roles {
-  @PrimaryGeneratedColumn("uuid")
-  role_id: string;
+  @PrimaryGeneratedColumn("uuid", { name: "user_id" })
+  roleId: string;
   @Column({ length: 60, nullable: false, unique: true })
   name: string;
   @Column({ length: 200 })

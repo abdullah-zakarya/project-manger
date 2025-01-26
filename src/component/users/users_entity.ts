@@ -13,8 +13,8 @@ import { Roles } from "../roles/roles_entity";
 
 Entity();
 export class Users {
-  @PrimaryGeneratedColumn("uuid")
-  user_id: string;
+  @PrimaryGeneratedColumn("uuid", { name: "user_id" })
+  userId: string;
 
   @Column({ length: 50, nullable: true })
   fullname: string;
@@ -31,9 +31,9 @@ export class Users {
   @Column({ nullable: false })
   @ManyToOne(() => resolveSoa)
   @JoinColumn({ name: "role_id" })
-  role_id: Roles["role_id"];
-  @CreateDateColumn()
-  created_at: Date;
-  @UpdateDateColumn()
-  updated_at: Date;
+  role_id: Roles["roleId"];
+  @CreateDateColumn({ name: "created_at" })
+  createdAt: Date;
+  @UpdateDateColumn({ name: "updated_at" })
+  updatedAt: Date;
 }
