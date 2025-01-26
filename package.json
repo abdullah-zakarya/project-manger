@@ -1,0 +1,38 @@
+{
+  "name": "project-manger",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abdullah-zakarya/project-manger.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/abdullah-zakarya/project-manger/issues"
+  },
+  "homepage": "https://github.com/abdullah-zakarya/project-manger#readme",
+  "description": "",
+  "dependencies": {
+    "eslint": "^9.19.0",
+    "eslint-config-prettier": "^10.0.1",
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9",
+    "pg": "^8.13.1",
+    "prettier": "^3.4.2",
+    "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
+    "typeorm": "^0.3.20",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.10",
+    "@types/pg": "^8.11.11",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.7.3"
+  }
+}
