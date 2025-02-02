@@ -1,17 +1,19 @@
 import cluster from "cluster";
 import os from "os";
-
+import { DatabaseUtil } from "./utils/db";
 import { ExpressServer } from "./express_server";
+import { Users } from "./components/users/users_entity";
 
+let test = false;
 const numCPUs = os.cpus().length;
 //
 
 if (cluster.isPrimary) {
   console.log(`Master process PID: ${process.pid}`);
+  const databse = new DatabaseUtil();
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }
-
   cluster.on("exit", (worker, code, signal) => {
     console.log(`Worker process ${worker.process.pid} exited with
     code ${code} and signal ${signal}`);

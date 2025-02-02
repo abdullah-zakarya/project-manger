@@ -1,4 +1,3 @@
-import { resolveSoa } from "dns";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,11 +6,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  RoleSpecification,
 } from "typeorm";
 import { Roles } from "../roles/roles_entity";
 
-Entity();
+@Entity() // Added @Entity() decorator to mark the class as an entity
 export class Users {
   @PrimaryGeneratedColumn("uuid", { name: "user_id" })
   userId: string;
@@ -29,11 +27,13 @@ export class Users {
   password: string;
 
   @Column({ nullable: false })
-  @ManyToOne(() => resolveSoa)
+  @ManyToOne(() => Roles) // Corrected the relationship to reference the Roles entity
   @JoinColumn({ name: "role_id" })
   role_id: Roles["roleId"];
+
   @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
+
   @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
 }

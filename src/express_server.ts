@@ -1,9 +1,9 @@
 import express, { Application } from "express";
-import IserverConfig from "utils/config";
+import { IServerConfig } from "./utils/config";
 import * as config from "../server_config.json";
 export class ExpressServer {
   private static server: any = null;
-  public server_config: IserverConfig = config;
+  public server_config: IServerConfig = config;
   constructor() {
     const port = this.server_config.port;
     const app = express();
