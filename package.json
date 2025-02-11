@@ -17,9 +17,11 @@
   "homepage": "https://github.com/abdullah-zakarya/project-manger#readme",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "eslint": "^9.19.0",
     "eslint-config-prettier": "^10.0.1",
     "express": "^4.21.2",
+    "express-validator": "^7.2.1",
     "nodemon": "^3.1.9",
     "pg": "^8.13.1",
     "prettier": "^3.4.2",

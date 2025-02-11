@@ -1,4 +1,3 @@
-import { promises } from "dns";
 import { Repository, DeepPartial, FindOneOptions } from "typeorm";
 
 export type UpdateDataKeys<T> = keyof T & keyof DeepPartial<T>;
@@ -135,10 +134,10 @@ export class BaseService<T> {
         }
         data = await query.getMany();
       } else {
-        data = await this.repository.find();
       }
       return { statusCode: 200, status: "success", data: data };
     } catch (error) {
+      console.log(error);
       return {
         statusCode: 500,
         status: "error",
@@ -223,10 +222,16 @@ export class BaseService<T> {
       return [];
     }
   }
-  buildWhere(id: string): Object {
+  private buildWhere(id: string): Object {
     const where = {};
-    const primaryKey: string =
+    let DataBasePrimaryKey: string =
       this.repository.metadata.primaryColumns[0].databaseName;
+    // convert database key (that use _) to the code key (that use camilCase)
+    const primaryKeyArray = DataBasePrimaryKey.split("_");
+    let primaryKey = primaryKeyArray[0];
+    for (const word of primaryKeyArray.slice(1))
+      primaryKey += word.slice(0, 1).toUpperCase() + word.slice(1);
+
     where[primaryKey] = id;
     return where;
   }
