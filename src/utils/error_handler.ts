@@ -1,3 +1,5 @@
+import { ApiResponse } from "./base_services";
+
 export function HandleErrors() {
   return function (
     target: any,
@@ -6,11 +8,14 @@ export function HandleErrors() {
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (
+      ...args: any[]
+    ): Promise<ApiResponse<any>> {
       try {
         const result = await originalMethod.apply(this, args);
         return result;
-      } catch (error) {
+      } catch (error: any) {
+        console.log("from decorator : Erorr Handler; \n" + propertyKey);
         return {
           statusCode: 500,
           status: "error",

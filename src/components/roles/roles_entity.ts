@@ -9,6 +9,7 @@ import {
 export class Roles {
   @PrimaryGeneratedColumn("uuid", { name: "role_id" })
   roleId: string;
+
   @Column({ length: 60, nullable: false, unique: true })
   name: string;
   @Column({ length: 200 })

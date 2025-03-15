@@ -1,238 +1,134 @@
-import { Repository, DeepPartial, FindOneOptions } from "typeorm";
+import {
+  DeepPartial,
+  FindOneOptions,
+  Repository,
+  ObjectLiteral,
+} from "typeorm";
+import { HandleErrors } from "./error_handler";
 
 export type UpdateDataKeys<T> = keyof T & keyof DeepPartial<T>;
-
-// Define a type for the API response
 export interface ApiResponse<T> {
   status: "success" | "error";
   message?: string;
   data?: T;
-  statusCode?: number;
+  statusCode: number;
 }
 
-export class BaseService<T> {
+export class BaseService<T extends ObjectLiteral> {
   constructor(private readonly repository: Repository<T>) {}
 
-  /**
-   * Creates a new entity using the provided data and saves it to the database.
-   * @param entity - The data to create the entity with.
-   * @returns An ApiResponse with the created entity data on success or an error message on failure.
-   */
+  @HandleErrors()
   async create(entity: DeepPartial<T>): Promise<ApiResponse<T>> {
-    try {
-      // Create an instance of the entity using the provided data
-      const createdEntity = await this.repository.create(entity);
-
-      // Save the created entity to the database
-      const savedEntity = await this.repository.save(createdEntity);
-
-      return { statusCode: 201, status: "success", data: savedEntity };
-    } catch (error) {
-      // Check if the error is a unique constraint violation
-      // (e.g., duplicate key)
-      if (error.code === "23505") {
-        return { statusCode: 409, status: "error", message: error.detail };
-      } else {
-        return { statusCode: 500, status: "error", message: error.message };
-      }
-    }
+    const createdEntity = this.repository.create(entity);
+    const savedEntity = await this.repository.save(createdEntity);
+    return { statusCode: 201, status: "success", data: savedEntity };
   }
 
-  /**
-   * Updates an entity with the provided ID using the given update data.
-   * @param id - The ID of the entity to be updated.
-   * @param updateData - The data used to update the entity.
-   * @returns An ApiResponse with status and updated entity data on success or an error message on failure.
-   */
+  @HandleErrors()
   async update(
     id: string,
     updateData: DeepPartial<T>
-  ): Promise<ApiResponse<T> | undefined> {
-    try {
-      // 1 )  Check if the entity exists with the provided ID
-      const exist = await this.findOne(id);
-      if (!exist) return exist;
+  ): Promise<ApiResponse<T>> {
+    const exist = await this.findOne(id);
+    if (!exist || exist.statusCode === 404) return exist;
 
-      // 2 ) Build the WHERE condition based on the primary key
-      const where = this.buildWhere(id);
-
-      // 3 ) Get a list of valid columns for updating
-      const validColumns = this.repository.metadata.columns.map(
-        (cul) => cul.propertyName
-      );
-      // 4 ) Extract and filter valid properties from updateData
-      const query = {};
-      const keys = Object.keys(updateData as UpdateDataKeys<T>);
-      for (const key of keys)
-        if (updateData.hasOwnProperty(key) && validColumns.includes(key))
-          query[key] = updateData[key];
-
-      // 5 ) Execute the update query
-      const result = await this.repository
-        .createQueryBuilder()
-        .update()
-        .set(query)
-        .where(where)
-        .returning("*")
-        .execute();
-      // 6 ) Return the result
-      if (result.affected > 0)
-        return { statusCode: 200, status: "success", data: result.raw[0] };
-
-      return {
-        statusCode: 400,
-        status: "error",
-        data: null,
-        message: "invalid date",
-      };
-    } catch (error) {
-      return { statusCode: 500, status: "error", message: error.message };
-    }
-  }
-
-  /**
-   * Finds an entity by its ID.
-   * @param id - The ID of the entity to be retrieved.
-   * @returns An ApiResponse with status and the retrieved entity data on success or an error message on failure.
-   */
-  async findOne(id: string): Promise<ApiResponse<T> | undefined> {
-    try {
-      // Build the WHERE condition based on the primary key
-      const where = this.buildWhere(id);
-      // Create options for the findOne query
-      const options: FindOneOptions<T> = { where } as FindOneOptions<T>;
-
-      // Use the repository to find the entity based on the provided ID
-      const data = await this.repository.findOne(options);
-
-      if (data) {
-        return { statusCode: 200, status: "success", data: data };
-      } else {
-        return { statusCode: 404, status: "error", message: "Not Found" };
+    const where = this.buildWhere(id);
+    const validColumns = this.repository.metadata.columns.map(
+      (col) => col.propertyName
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const query: any = {};
+    for (const key of Object.keys(updateData)) {
+      if (validColumns.includes(key)) {
+        query[key] = updateData[key];
       }
-    } catch (error) {
-      return { statusCode: 500, status: "error", message: error.message };
     }
+    console.log(query);
+    const result = await this.repository
+      .createQueryBuilder()
+      .update()
+      .set(query)
+      .where(where)
+      .returning("*")
+      .execute();
+
+    if (result.affected && result.affected > 0)
+      return { statusCode: 200, status: "success", data: result.raw[0] };
+
+    return {
+      statusCode: 400,
+      status: "error",
+      message: "Invalid data",
+    };
   }
 
-  /**
-   * Finds all entities based on the provided query parameters.
-   * @param queryParams - The query parameters to filter the entities.
-   * @returns An ApiResponse with status and an array of retrieved entity data on success or an error message on failure.
-   */
-  async findAll(queryParams: object): Promise<ApiResponse<T[]>> {
-    try {
-      let data = [];
-      if (Object.keys(queryParams).length > 0) {
-        const query = await this.repository.createQueryBuilder();
-        for (const field in queryParams) {
-          // eslint-disable-next-line no-prototype-builtins
-          if (queryParams.hasOwnProperty(field)) {
-            const value = queryParams[field];
-            query.andWhere(`${field} = '${value}'`);
-          }
-        }
-        data = await query.getMany();
-      } else {
+  @HandleErrors()
+  async findOne(id: string): Promise<ApiResponse<T>> {
+    const where = this.buildWhere(id);
+    const data = await this.repository.findOne({ where } as FindOneOptions<T>);
+
+    if (data) return { statusCode: 200, status: "success", data };
+    return { statusCode: 404, status: "error", message: "Not Found" };
+  }
+
+  @HandleErrors()
+  async findAll(
+    queryParams: Record<string, unknown>
+  ): Promise<ApiResponse<T[]>> {
+    let data: T[];
+
+    if (Object.keys(queryParams).length > 0) {
+      const query = this.repository.createQueryBuilder();
+      for (const field in queryParams) {
+        query.andWhere(`${field} = :value`, { value: queryParams[field] });
       }
-      return { statusCode: 200, status: "success", data: data };
-    } catch (error) {
-      console.log(error);
-      return {
-        statusCode: 500,
-        status: "error",
-        data: [],
-        message: error.message,
-      };
+      data = await query.getMany();
+    } else {
+      data = await this.repository.find();
     }
+
+    return { statusCode: 200, status: "success", data };
   }
 
-  /**
-   * Deletes an entity based on the provided ID.
-   * @param id - The ID of the entity to be deleted.
-   * @returns An ApiResponse with status indicating success or error.
-   */
+  @HandleErrors()
   async delete(id: string): Promise<ApiResponse<T>> {
-    try {
-      // Check if the entity exists with the provided ID
-      const isExist = await this.findOne(id);
-      if (isExist.statusCode === 404) {
-        return isExist;
-      }
+    const exist = await this.findOne(id);
+    if (!exist || exist.statusCode === 404) return exist;
 
-      // Delete the entity with the provided ID
-      await this.repository.delete(id);
-
-      return { statusCode: 200, status: "success" };
-    } catch (error) {
-      return { statusCode: 500, status: "error", message: error.message };
-    }
+    await this.repository.delete(id);
+    return { statusCode: 200, status: "success" };
   }
-
-  /**
-   * Retrieves multiple records by their IDs from the database.
-   *
-   * @param {string[]} ids - An array of IDs used to fetch records.
-   * @returns {Promise<ApiResponse<T[]>>} - A promise that resolves to an ApiResponse containing the retrieved data.
-   */
+  @HandleErrors()
   async findByIds(ids: string[]): Promise<ApiResponse<T[]>> {
-    try {
-      // Get the primary key column name from the metadata
-      const primaryKey: string =
-        this.repository.metadata.primaryColumns[0].databaseName;
-
-      // Query the database to retrieve records with the specified IDs
-      const data = await this.repository
-        .createQueryBuilder()
-        .where(`${primaryKey} IN (:...ids)`, { ids: ids })
-        .getMany();
-
-      // Return success response with the retrieved data
-      return { statusCode: 200, status: "success", data: data };
-    } catch (error) {
-      // Return error response if an exception occurs
-      return {
-        statusCode: 500,
-        status: "error",
-        data: [],
-        message: error.message,
-      };
-    }
+    const data = await this.repository
+      .createQueryBuilder()
+      .whereInIds(ids)
+      .getMany();
+    return { statusCode: 200, status: "success", data: data };
   }
-
-  /**
-   * Executes a custom query on the database.
-   *
-   * @param {string} query - The custom query to be executed.
-   * @returns {Promise<T[]>} - A promise that resolves to an array of results from the custom query.
-   */
   async customQuery(query: string): Promise<T[]> {
     try {
-      // Execute the custom query using the query builder
       const data = await this.repository
         .createQueryBuilder()
         .where(query)
         .getMany();
 
-      // Return the query results
       return data;
     } catch (error) {
-      // Log an error message and return undefined if an exception occurs
       console.error(`Error while executing custom query: ${query}`, error);
       return [];
     }
   }
-  private buildWhere(id: string): Object {
-    const where = {};
-    let DataBasePrimaryKey: string =
-      this.repository.metadata.primaryColumns[0].databaseName;
-    // convert database key (that use _) to the code key (that use camilCase)
-    const primaryKeyArray = DataBasePrimaryKey.split("_");
-    let primaryKey = primaryKeyArray[0];
-    for (const word of primaryKeyArray.slice(1))
-      primaryKey += word.slice(0, 1).toUpperCase() + word.slice(1);
 
-    where[primaryKey] = id;
-    return where;
+  /**
+   * Constructs a where clause object for querying the repository based on the given ID.
+   * The ID is mapped to the primary key of the entity.
+   *
+   * @param {string} id - The ID of the entity to build the where clause for.
+   * @returns {Record<string, string>} An object representing the where clause with the primary key as the key and the provided ID as the value.
+   */
+  private buildWhere(id: string): Record<string, string> {
+    const primaryKey = this.repository.metadata.primaryColumns[0].propertyName;
+    return { [primaryKey]: id };
   }
 }

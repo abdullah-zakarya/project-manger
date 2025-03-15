@@ -6,6 +6,7 @@ import { Users } from "../components/users/users_entity";
 import { Projects } from "../components/projects/projects_entity";
 import { Tasks } from "../components/tasks/tasks_entity";
 import { Comments } from "../components/comments/comments_entity";
+// import { Files } from '../components/files/files_entity';
 
 export class DatabaseUtil {
   private server_config: IServerConfig = config;
@@ -17,14 +18,6 @@ export class DatabaseUtil {
   constructor() {
     this.connectDatabase();
   }
-
-  /**
-   * Returns a singleton instance of the DatabaseUtil class.
-   * If an instance doesn't exist, it creates a new one and connects to the database.
-   * If an instance already exists, it returns the existing instance.
-   * @returns A Promise that resolves to the singleton instance of DatabaseUtil.
-   */
-  // signal design pattern
   public static async getInstance(): Promise<DatabaseUtil> {
     if (!DatabaseUtil.instance) {
       DatabaseUtil.instance = new DatabaseUtil();
@@ -70,7 +63,7 @@ export class DatabaseUtil {
    * @param entity - The entity for which the repository is needed.
    * @returns The repository instance for the entity.
    */
-  public getRepository(entity) {
+  public getRepository(entity: any) {
     try {
       // Check if a valid database connection is available
       if (DatabaseUtil.connection) {
@@ -84,7 +77,7 @@ export class DatabaseUtil {
         return this.repositories[entityName];
       }
       return null;
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error while getRepository => ${error.message}`);
     }
   }

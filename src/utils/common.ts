@@ -1,6 +1,15 @@
 import * as bcrypt from "bcrypt";
 
-export const Rights = {
+export const Rights: {
+  [key: string]: {
+    ADD: string;
+    EDIT: string;
+    GET_ALL: string;
+    GET_DETAILS: string;
+    DELETE: string;
+    ALL: string;
+  };
+} = {
   ROLES: {
     ADD: "add_role",
     EDIT: "edit_role",
@@ -60,7 +69,7 @@ export const encryptString = async (s: string) => {
  * @param {string} hash - The bcrypt hash to compare against.
  * @returns {Promise<boolean>} - A promise that resolves to true if the comparison is successful, otherwise false.
  */
-export const bcryptCompare = async (s, hash) => {
+export const bcryptCompare = async (s: string, hash: string) => {
   return await bcrypt.compare(s, hash);
 };
 

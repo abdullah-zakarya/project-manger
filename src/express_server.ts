@@ -1,23 +1,42 @@
 import express, { Application } from "express";
 import { IServerConfig } from "./utils/config";
 import * as config from "../server_config.json";
-import { RoleRoutes } from "./components/roles/roles_routers";
+import { Routes } from "./routes";
+import * as bodyParser from "body-parser";
+
 export class ExpressServer {
   private static server: any = null;
+  private app: Application;
   public server_config: IServerConfig = config;
   constructor() {
-    const port = this.server_config.port;
+    const port = this.server_config.port ?? 3000;
+    // app initalizaton
     const app = express();
-    new RoleRoutes(app);
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
+    // testing app endpoint
     app.get("/ping", (req, res) => {
       res.send("pong");
     });
+
+    const routes = new Routes(app);
+    if (routes) {
+      console.log("Server Routes started for server");
+    }
+
     ExpressServer.server = app.listen(port, () => {
-      console.log("express server runing on port" + port);
-      console.log("process runnig on ", process.pid);
+      console.log(
+        `Server is running on port ${port} with pid = ${process.pid}`
+      );
     });
+    this.app = app;
   }
+  //close the express server for safe on uncaughtException
   public closeServer(): void {
-    ExpressServer.server.close();
+    if (!ExpressServer.server) return;
+    ExpressServer.server.close(() => {
+      console.log("Server closed");
+      process.exit(0);
+    });
   }
 }

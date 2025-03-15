@@ -1,4 +1,4 @@
-import { Express } from "express";
+import { Application, Express } from "express";
 import { RoleController, RolesUtil } from "./roles_controller";
 import { validate } from "../../utils/validator";
 import { body } from "express-validator";
@@ -26,10 +26,9 @@ const validRoleInput = [
 ];
 export class RoleRoutes {
   private baseEndPoint = "/api/v1/roles";
-  constructor(app: Express) {
+  constructor(app: Application) {
     console.log("FROM ROLE ROUTEERS");
-    const controller: BaseController = new RoleController();
-
+    const controller = new RoleController();
     app
       .route(this.baseEndPoint)
       .get(controller.getAllHandler)
