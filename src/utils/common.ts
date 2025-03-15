@@ -1,4 +1,5 @@
 import * as bcrypt from "bcrypt";
+import moment from "moment";
 
 export const Rights: {
   [key: string]: {
@@ -77,4 +78,8 @@ export const SERVER_CONST = {
   JWTSECRET: "SecretKeyOfPMS-SECRET",
   ACCESS_TOKEN_EXPIRY_TIME_SECONDS: 1 * 8 * 60 * 60, // 8 hours
   REFRESH_TOKEN_EXPIRY_TIME_SECONDS: 5 * 7 * 24 * 60 * 60, // one week
+};
+
+export const checkValidDate = function (value: string) {
+  return moment(value, "YYYY-MM-DD HH:mm:ss", true).isValid();
 };
