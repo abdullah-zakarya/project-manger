@@ -3,7 +3,7 @@ import { UserController } from "./users_controller";
 
 import { body } from "express-validator";
 import { validate } from "../../utils/validator";
-import { authorize } from "../../utils/auth_utilties";
+import { authorize } from "../../utils/auth_utils";
 
 const validUserInput = [
   body("username").trim().notEmpty().withMessage("It should be required"),
@@ -69,7 +69,7 @@ export class UserRoutes {
 
     app
       .route(this.baseEndPoint)
-      // .all(authorize)
+      .all(authorize)
       .get(controller.getAllHandler)
       .post(validate(validUserInput), controller.addHandler);
 
@@ -80,10 +80,10 @@ export class UserRoutes {
       .put(validate(updateValidUserInput), controller.updateHandler)
       .delete(controller.deleteHandler);
 
-    app.route("/api/login").post(controller.login);
+    app.route("/api/v1/login").post(controller.login);
 
     app
-      .route("/api/refresh_token")
+      .route("/api/v1/refresh_token")
       .post(controller.getAccessTokenFromRefreshToken);
 
     app

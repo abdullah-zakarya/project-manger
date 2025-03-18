@@ -1,8 +1,9 @@
-import { Express, Router } from "express";
-import { RoleRoutes } from "../components/roles/roles_routers";
-import { UserRoutes } from "../components/users/users_routes";
-// import { ProjectRoutes } from '../components/projects/projects_routes';
-// import { TaskRoutes } from '../components/tasks/tasks_routes';
+import { Express, Router } from 'express';
+import { RoleRoutes } from '../components/roles/roles_routers';
+import { UserRoutes } from '../components/users/users_routes';
+import { ProjectRoutes } from '../components/projects/projects_routes';
+import { TaskRoutes } from '../components/tasks/tasks_routes';
+
 // import { CommentRoutes } from '../components/comments/comments_routes';
 // import { FileRoutes } from '../components/files/files_route';
 
@@ -13,8 +14,8 @@ export class Routes {
     const routeClasses = [
       RoleRoutes,
       UserRoutes,
-      // ProjectRoutes,
-      // TaskRoutes,
+      ProjectRoutes,
+      TaskRoutes,
       // CommentRoutes,
       // FileRoutes
     ];

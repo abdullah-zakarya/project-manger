@@ -3,12 +3,16 @@ import os from "os";
 const numCPUs = os.cpus().length;
 import { ExpressServer } from "./express_server";
 import { DatabaseUtil } from "./utils/db";
+import { DDLUtil } from "./utils/ddl_util";
 
 main();
 async function main() {
   if (cluster.isPrimary) {
     console.log(`Master process PID: ${process.pid}`);
-
+    const args = process.argv.slice(2);
+    if (args.length > 0 && args[0] == "--init") {
+      init();
+    }
     for (let i = 0; i < numCPUs; i++) {
       cluster.fork();
     }
@@ -55,4 +59,11 @@ async function main() {
       server.closeServer();
     });
   }
+}
+async function init() {
+  console.log("Initializing...");
+  await DatabaseUtil.getInstance();
+  await DDLUtil.addDefaultRole();
+  await DDLUtil.addDefaultUser();
+  process.exit();
 }

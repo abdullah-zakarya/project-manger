@@ -5,7 +5,11 @@ export interface IServerConfig {
     password: string;
     from: string;
   };
-
+  default_user: {
+    username: string;
+    password: string;
+    email: string;
+  };
   db_config: {
     db: string;
     username: string;

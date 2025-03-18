@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "main.ts",
   "scripts": {
-    "start": "nodemon ./src/main.ts"
+    "start": "nodemon ./src/main.ts",
+    "init": "tsc && node ./src/main.ts --init"
   },
   "repository": {
     "type": "git",

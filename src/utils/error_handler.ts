@@ -1,10 +1,10 @@
-import { ApiResponse } from "./base_services";
+import { ApiResponse } from './base_services';
 
 export function HandleErrors() {
   return function (
     target: any,
     propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor: PropertyDescriptor,
   ) {
     const originalMethod = descriptor.value;
 
@@ -15,10 +15,9 @@ export function HandleErrors() {
         const result = await originalMethod.apply(this, args);
         return result;
       } catch (error: any) {
-        console.log("from decorator : Erorr Handler; \n" + propertyKey);
         return {
           statusCode: 500,
-          status: "error",
+          status: 'error',
           message: error.message,
         };
       }

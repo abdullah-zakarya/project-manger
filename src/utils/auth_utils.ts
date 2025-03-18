@@ -1,21 +1,19 @@
-import * as jwt from "jsonwebtoken";
-import { SERVER_CONST } from "./common";
-import { UsersUtil } from "../components/users/users_controller";
-import { RolesUtil } from "../components/roles/roles_controller";
-import { NextFunction, Request, Response } from "express";
-import { Users } from "../components/users/users_entity";
+import * as jwt from 'jsonwebtoken';
+import { SERVER_CONST } from './common';
+import { UsersUtil } from '../components/users/users_controller';
+import { RolesUtil } from '../components/roles/roles_controller';
+import { NextFunction, Request, Response } from 'express';
 
 export const authorize = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void | any> => {
   try {
-    const token = req.headers.authorization?.split("Bearer ")[1];
+    const [type, token] = req.headers.authorization?.split(' ');
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
-      // return next(new Error("Missing Authorization Token"));
+    if (!token || type !== 'Bearer') {
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
     const decodedToken = jwt.verify(token, SERVER_CONST.JWTSECRET);
@@ -35,13 +33,15 @@ export const authorize = async (
 
     next();
   } catch (error) {
-    next(new Error("Invalid Token"));
+    res
+      .status(401)
+      .json({ statusCode: 401, status: 'error', message: 'invalid token' });
   }
 };
 
 export const hasPermission = (
   rights: string[],
-  desired_rights: string
+  desired_rights: string,
 ): boolean => {
   if (rights?.includes(desired_rights)) {
     return true;

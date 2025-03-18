@@ -27,7 +27,6 @@ const validRoleInput = [
 export class RoleRoutes {
   private baseEndPoint = "/api/v1/roles";
   constructor(app: Application) {
-    console.log("FROM ROLE ROUTEERS");
     const controller = new RoleController();
     app
       .route(this.baseEndPoint)

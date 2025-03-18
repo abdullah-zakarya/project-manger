@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "../../utils/base_controller";
 import { Rights } from "../../utils/common";
-import { RolesService } from "./roles_services";
+import { RolesService } from "./roles_service";
 import { promises } from "dns";
 import { Roles } from "./roles_entity";
 import { ApiResponse } from "../../utils/base_services";

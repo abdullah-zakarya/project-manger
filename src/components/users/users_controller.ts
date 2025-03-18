@@ -1,14 +1,13 @@
-import { Response, Request } from "express";
-import { BaseController } from "../../utils/base_controller";
-import { SERVER_CONST, bcryptCompare, encryptString } from "../../utils/common";
-import { RolesUtil } from "../roles/roles_controller";
-import { UsersService } from "./users_service";
-import * as jwt from "jsonwebtoken";
-import { hasPermission } from "../../utils/auth_utilties";
-import { sendMail } from "../../utils/email_util";
-import { Users } from "./users_entity";
-import * as config from "../../../server_config.json";
-import { permissionHandler } from "../../utils/permissionHandler";
+import { Response, Request } from 'express';
+import { BaseController } from '../../utils/base_controller';
+import { SERVER_CONST, bcryptCompare, encryptString } from '../../utils/common';
+import { RolesUtil } from '../roles/roles_controller';
+import { UsersService } from './users_service';
+import * as jwt from 'jsonwebtoken';
+import { hasPermission } from '../../utils/auth_utils';
+import { sendMail } from '../../utils/email_util';
+import { Users } from './users_entity';
+import { permissionHandler } from '../../utils/permissionHandler';
 export class UserController extends BaseController {
   /**
    * Handles the addition of a new user.
@@ -25,8 +24,8 @@ export class UserController extends BaseController {
       if (!isValidRole) {
         res.status(400).json({
           statusCode: 400,
-          status: "error",
-          message: "Invalid role_ids",
+          status: 'error',
+          message: 'Invalid role_ids',
         });
         return;
       }
@@ -43,8 +42,8 @@ export class UserController extends BaseController {
       console.error(`Error while addUser => ${error.message}`);
       res.status(500).json({
         statusCode: 500,
-        status: "error",
-        message: "Internal server error",
+        status: 'error',
+        message: 'Internal server error',
       });
     }
   }
@@ -59,7 +58,7 @@ export class UserController extends BaseController {
     res.status(result.statusCode).json(result);
     return;
   }
-
+  @permissionHandler()
   public async getOneHandler(req: Request, res: Response): Promise<void> {
     const service = new UsersService();
     const result = await service.findOne(req.params.id);
@@ -69,7 +68,7 @@ export class UserController extends BaseController {
     res.status(result.statusCode).json(result);
     return;
   }
-
+  @permissionHandler()
   public async updateHandler(req: Request, res: Response): Promise<void> {
     const service = new UsersService();
     const user = req.body;
@@ -106,24 +105,24 @@ export class UserController extends BaseController {
     const { email, password } = req.body;
 
     const service = new UsersService();
-
     // Find user by email
-    const result = await service.findAll({ email: email });
+    const result = await service.findAll({ email });
     if (result.data.length < 1) {
       res
         .status(404)
-        .json({ statusCode: 404, status: "error", message: "Email not found" });
+        .json({ statusCode: 404, status: 'error', message: 'Email not found' });
       return;
     } else {
       const user = result.data[0];
 
       // Compare provided password with stored hashed password
+
       const comparePasswords = await bcryptCompare(password, user.password);
       if (!comparePasswords) {
         res.status(400).json({
           statusCode: 400,
-          status: "error",
-          message: "Password is not valid",
+          status: 'error',
+          message: 'Password is not valid',
         });
         return;
       }
@@ -135,7 +134,7 @@ export class UserController extends BaseController {
           username: user.username,
         },
         SERVER_CONST.JWTSECRET,
-        { expiresIn: SERVER_CONST.ACCESS_TOKEN_EXPIRY_TIME_SECONDS }
+        { expiresIn: SERVER_CONST.ACCESS_TOKEN_EXPIRY_TIME_SECONDS },
       );
 
       const refreshToken: string = jwt.sign(
@@ -144,13 +143,13 @@ export class UserController extends BaseController {
           username: user.username,
         },
         SERVER_CONST.JWTSECRET,
-        { expiresIn: SERVER_CONST.REFRESH_TOKEN_EXPIRY_TIME_SECONDS }
+        { expiresIn: SERVER_CONST.REFRESH_TOKEN_EXPIRY_TIME_SECONDS },
       );
 
       // Respond with tokens
       res.status(200).json({
         statusCode: 200,
-        status: "success",
+        status: 'success',
         data: { accessToken, refreshToken },
       });
       return;
@@ -165,7 +164,7 @@ export class UserController extends BaseController {
    */
   public async getAccessTokenFromRefreshToken(
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<void> {
     // Get the refresh token from the request body
     const refreshToken = req.body.refreshToken;
@@ -176,8 +175,8 @@ export class UserController extends BaseController {
         // If refresh token is invalid, send a 403 error response
         res.status(403).json({
           statusCode: 403,
-          status: "error",
-          message: "Invalid Refresh Token",
+          status: 'error',
+          message: 'Invalid Refresh Token',
         });
         return;
       }
@@ -191,7 +190,7 @@ export class UserController extends BaseController {
       // Respond with the new access token
       res
         .status(200)
-        .json({ statusCode: 200, status: "success", data: { accessToken } });
+        .json({ statusCode: 200, status: 'success', data: { accessToken } });
       return;
     });
   }
@@ -204,7 +203,7 @@ export class UserController extends BaseController {
     if (findUserResult.statusCode !== 200) {
       res
         .status(404)
-        .send({ statusCode: 404, status: "error", message: "User Not Found" });
+        .send({ statusCode: 404, status: 'error', message: 'User Not Found' });
       return;
     }
     const user = findUserResult.data;
@@ -213,8 +212,8 @@ export class UserController extends BaseController {
     if (user?.username !== req.user.username) {
       res.status(400).send({
         statusCode: 400,
-        status: "error",
-        message: "User can change only own password",
+        status: 'error',
+        message: 'User can change only own password',
       });
       return;
     }
@@ -224,8 +223,8 @@ export class UserController extends BaseController {
     if (!comparePasswords) {
       res.status(400).json({
         statusCode: 400,
-        status: "error",
-        message: "oldPassword is not matched",
+        status: 'error',
+        message: 'oldPassword is not matched',
       });
       return;
     }
@@ -236,8 +235,8 @@ export class UserController extends BaseController {
     if (result.statusCode === 200) {
       res.status(200).json({
         statusCode: 200,
-        status: "success",
-        message: "Password is updated successfully",
+        status: 'success',
+        message: 'Password is updated successfully',
       });
       return;
     } else {
@@ -251,14 +250,14 @@ export class UserController extends BaseController {
     if (!emailPattern.test(email)) {
       res
         .status(400)
-        .send({ statusCode: 400, status: "error", message: "Invalid email" });
+        .send({ statusCode: 400, status: 'error', message: 'Invalid email' });
       return;
     }
     const user: Users = await UsersUtil.getUserByEmail(email);
     if (!user) {
       res
         .status(404)
-        .send({ statusCode: 404, status: "error", message: "User Not Found" });
+        .send({ statusCode: 404, status: 'error', message: 'User Not Found' });
       return;
     }
     // Generate a reset token for the user
@@ -266,15 +265,15 @@ export class UserController extends BaseController {
       { email: user.email },
       SERVER_CONST.JWTSECRET,
       {
-        expiresIn: "1h",
-      }
+        expiresIn: '1h',
+      },
     );
 
     // Generate the reset link
     const resetLink = `localhost:3000/users/reset-password?token=${resetToken}`;
     const mailOptions = {
       to: email,
-      subject: "Password Reset",
+      subject: 'Password Reset',
       html: ` Hello ${user.username},<p>We received a request to reset your password. If you didn't initiate this request, please ignore this email.</p>
            <p>To reset your password, please click the link below:</p>
            <p><a href="${resetLink}" style="background-color: #007bff; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; display: inline-block;">Reset Password</a></p>
@@ -287,20 +286,20 @@ export class UserController extends BaseController {
     const emailStatus = await sendMail(
       mailOptions.to,
       mailOptions.subject,
-      mailOptions.html
+      mailOptions.html,
     );
     if (emailStatus) {
       res.status(200).json({
         statusCode: 200,
-        status: "success",
-        message: "Reset Link sent on your mailId",
+        status: 'success',
+        message: 'Reset Link sent on your mailId',
         data: { resetToken: resetToken },
       });
     } else {
       res.status(400).json({
         statusCode: 400,
-        status: "error",
-        message: "something went wrong try again",
+        status: 'error',
+        message: 'something went wrong try again',
       });
     }
     return;
@@ -314,16 +313,16 @@ export class UserController extends BaseController {
     try {
       const decoded = jwt.verify(token, SERVER_CONST.JWTSECRET);
       if (!decoded) {
-        throw new Error("Invalid Reset Token");
+        throw new Error('Invalid Reset Token');
       }
-      email = decoded["email"];
+      email = decoded['email'];
     } catch (error) {
       res
         .status(400)
         .json({
           statusCode: 400,
-          status: "error",
-          message: "Reset Token is invalid or expired",
+          status: 'error',
+          message: 'Reset Token is invalid or expired',
         })
         .end();
       return;
@@ -334,7 +333,7 @@ export class UserController extends BaseController {
       if (!user) {
         res
           .status(404)
-          .json({ statusCode: 404, status: "error", message: "User not found" })
+          .json({ statusCode: 404, status: 'error', message: 'User not found' })
           .end();
         return;
       }
@@ -346,8 +345,8 @@ export class UserController extends BaseController {
       if (result.statusCode === 200) {
         res.status(200).json({
           statusCode: 200,
-          status: "success",
-          message: "Password updated successfully",
+          status: 'success',
+          message: 'Password updated successfully',
         });
       } else {
         res.status(result.statusCode).json(result).end();
@@ -358,8 +357,8 @@ export class UserController extends BaseController {
         .status(500)
         .json({
           statusCode: 500,
-          status: "error",
-          message: "Internal Server error",
+          status: 'error',
+          message: 'Internal Server error',
         })
         .end();
     }
@@ -401,7 +400,6 @@ export class UsersUtil {
 
     // Query the database to check if all user_ids are valid
     const users = await userService.findByIds(user_ids);
-    console.log(users);
 
     // Check if all user_ids are found in the database
     return users.data.length === user_ids.length;

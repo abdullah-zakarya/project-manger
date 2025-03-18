@@ -3,12 +3,12 @@ import {
   FindOneOptions,
   Repository,
   ObjectLiteral,
-} from "typeorm";
-import { HandleErrors } from "./error_handler";
+} from 'typeorm';
+import { HandleErrors } from './error_handler';
 
 export type UpdateDataKeys<T> = keyof T & keyof DeepPartial<T>;
 export interface ApiResponse<T> {
-  status: "success" | "error";
+  status: 'success' | 'error';
   message?: string;
   data?: T;
   statusCode: number;
@@ -21,20 +21,20 @@ export class BaseService<T extends ObjectLiteral> {
   async create(entity: DeepPartial<T>): Promise<ApiResponse<T>> {
     const createdEntity = this.repository.create(entity);
     const savedEntity = await this.repository.save(createdEntity);
-    return { statusCode: 201, status: "success", data: savedEntity };
+    return { statusCode: 201, status: 'success', data: savedEntity };
   }
 
   @HandleErrors()
   async update(
     id: string,
-    updateData: DeepPartial<T>
+    updateData: DeepPartial<T>,
   ): Promise<ApiResponse<T>> {
     const exist = await this.findOne(id);
     if (!exist || exist.statusCode === 404) return exist;
 
     const where = this.buildWhere(id);
     const validColumns = this.repository.metadata.columns.map(
-      (col) => col.propertyName
+      (col) => col.propertyName,
     );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query: any = {};
@@ -43,22 +43,21 @@ export class BaseService<T extends ObjectLiteral> {
         query[key] = updateData[key];
       }
     }
-    console.log(query);
     const result = await this.repository
       .createQueryBuilder()
       .update()
       .set(query)
       .where(where)
-      .returning("*")
+      .returning('*')
       .execute();
 
     if (result.affected && result.affected > 0)
-      return { statusCode: 200, status: "success", data: result.raw[0] };
+      return { statusCode: 200, status: 'success', data: result.raw[0] };
 
     return {
       statusCode: 400,
-      status: "error",
-      message: "Invalid data",
+      status: 'error',
+      message: 'Invalid data',
     };
   }
 
@@ -67,13 +66,13 @@ export class BaseService<T extends ObjectLiteral> {
     const where = this.buildWhere(id);
     const data = await this.repository.findOne({ where } as FindOneOptions<T>);
 
-    if (data) return { statusCode: 200, status: "success", data };
-    return { statusCode: 404, status: "error", message: "Not Found" };
+    if (data) return { statusCode: 200, status: 'success', data };
+    return { statusCode: 404, status: 'error', message: 'Not Found' };
   }
 
   @HandleErrors()
   async findAll(
-    queryParams: Record<string, unknown>
+    queryParams: Record<string, unknown>,
   ): Promise<ApiResponse<T[]>> {
     let data: T[];
 
@@ -87,7 +86,7 @@ export class BaseService<T extends ObjectLiteral> {
       data = await this.repository.find();
     }
 
-    return { statusCode: 200, status: "success", data };
+    return { statusCode: 200, status: 'success', data };
   }
 
   @HandleErrors()
@@ -96,7 +95,7 @@ export class BaseService<T extends ObjectLiteral> {
     if (!exist || exist.statusCode === 404) return exist;
 
     await this.repository.delete(id);
-    return { statusCode: 200, status: "success" };
+    return { statusCode: 200, status: 'success' };
   }
   @HandleErrors()
   async findByIds(ids: string[]): Promise<ApiResponse<T[]>> {
@@ -104,7 +103,7 @@ export class BaseService<T extends ObjectLiteral> {
       .createQueryBuilder()
       .whereInIds(ids)
       .getMany();
-    return { statusCode: 200, status: "success", data: data };
+    return { statusCode: 200, status: 'success', data: data };
   }
   async customQuery(query: string): Promise<T[]> {
     try {

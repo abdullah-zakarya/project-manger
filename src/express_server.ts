@@ -10,7 +10,7 @@ export class ExpressServer {
   public server_config: IServerConfig = config;
   constructor() {
     const port = this.server_config.port ?? 3000;
-    // app initalizaton
+    // app initializations
     const app = express();
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
@@ -21,9 +21,7 @@ export class ExpressServer {
 
     const routes = new Routes(app);
     if (routes) {
-      console.log("Server Routes started for server");
     }
-
     ExpressServer.server = app.listen(port, () => {
       console.log(
         `Server is running on port ${port} with pid = ${process.pid}`
