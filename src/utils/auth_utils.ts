@@ -22,13 +22,13 @@ export const authorize = async (
       email: string;
     };
 
-    const { userId, role_id } = await UsersUtil.getUserFromUsername(username);
+    const { userId, roleId } = await UsersUtil.getUserFromUsername(username);
     req.user = { username, email, userId };
 
     if (req.user.username) {
       const user = await UsersUtil.getUserFromUsername(req.user.username);
       req.user.userId = user.userId;
-      req.user.rights = await RolesUtil.getAllRightsFromRoles([role_id]);
+      req.user.rights = await RolesUtil.getAllRightsFromRoles([roleId]);
     }
 
     next();

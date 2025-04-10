@@ -17,17 +17,17 @@ export class ProjectController extends BaseController {
   public async addHandler(req: Request, res: Response): Promise<void> {
     const service = new ProjectsService();
     const project = req.body;
-    const isValidUsers = await UsersUtil.checkValidUserIds(project.user_ids);
+    const isValidUsers = await UsersUtil.checkValidUserIds(project.userIds);
     if (!isValidUsers) {
       res.status(400).json({
         statusCode: 400,
         status: 'error',
-        message: 'Invalid user_ids',
+        message: 'Invalid userIds',
       });
       return;
     }
 
-    // If user_ids are valid, create the user
+    // If userIds are valid, create the user
     const createdProject = await service.create(project);
     res.status(createdProject.statusCode).json(createdProject);
   }
@@ -37,8 +37,8 @@ export class ProjectController extends BaseController {
     const service = new ProjectsService();
     const result = await service.findAll(req.query);
     for (const project of result.data) {
-      project['users'] = await UsersUtil.getUsernamesById(project.user_ids);
-      delete project.user_ids;
+      project['users'] = await UsersUtil.getUsernamesById(project.userIds);
+      delete project.userIds;
     }
 
     res.status(result.statusCode).json(result);
@@ -48,9 +48,9 @@ export class ProjectController extends BaseController {
     const service = new ProjectsService();
     const result = await service.findOne(req.params.id);
     result.data['users'] = await UsersUtil.getUsernamesById(
-      result.data.user_ids,
+      result.data.userIds,
     );
-    delete result.data.user_ids;
+    delete result.data.userIds;
     res.status(result.statusCode).json(result);
   }
 

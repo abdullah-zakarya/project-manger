@@ -6,12 +6,14 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-} from "typeorm";
-import { Roles } from "../roles/roles_entity";
+  OneToMany,
+} from 'typeorm';
+import { Roles } from '../roles/roles_entity';
+import { Tasks } from '../tasks/tasks_entity';
 
-@Entity() // Added @Entity() decorator to mark the class as an entity
+@Entity()
 export class Users {
-  @PrimaryGeneratedColumn("uuid", { name: "user_id" })
+  @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
   userId: string;
 
   @Column({ length: 50, nullable: true })
@@ -26,14 +28,17 @@ export class Users {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ nullable: false })
-  @ManyToOne(() => Roles) // Corrected the relationship to reference the Roles entity
-  @JoinColumn({ name: "role_id" })
-  role_id: Roles["roleId"];
+  @OneToMany(() => Tasks, (task) => task.user)
+  tasks?: Tasks[];
+  @Column({ name: 'role_id' })
+  roleId: string;
+  @ManyToOne(() => Roles)
+  @JoinColumn({ name: 'role_id' })
+  role: Roles;
 
-  @CreateDateColumn({ name: "created_at" })
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: "updated_at" })
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

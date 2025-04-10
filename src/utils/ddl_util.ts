@@ -1,11 +1,11 @@
-import { Roles } from "../components/roles/roles_entity";
-import { RolesUtil } from "../components/roles/roles_controller";
-import { v4 } from "uuid";
-import { RolesService } from "../components/roles/roles_service";
-import { UsersService } from "../components/users/users_service";
-import { Users } from "../components/users/users_entity";
-import * as config from "../../server_config.json";
-import { encryptString } from "./common";
+import { Roles } from '../components/roles/roles_entity';
+import { RolesUtil } from '../components/roles/roles_controller';
+import { v4 } from 'uuid';
+import { RolesService } from '../components/roles/roles_service';
+import { UsersService } from '../components/users/users_service';
+import { Users } from '../components/users/users_entity';
+import * as config from '../../server_config.json';
+import { encryptString } from './common';
 
 export class DDLUtil {
   private static superAdminRoleId: string;
@@ -16,19 +16,19 @@ export class DDLUtil {
       const rights = RolesUtil.getAllPermissionsFromRights();
       const role: Roles = {
         roleId: v4(),
-        name: "SuperAdmin",
-        description: "Admin with having all permission",
-        rights: rights.join(","),
+        name: 'SuperAdmin',
+        description: 'Admin with having all permission',
+        rights: rights.join(','),
         created_at: new Date(),
         updated_at: new Date(),
       };
       const result = await service.create(role);
-      console.log("Add Default Role Result", result);
+      console.log('Add Default Role Result', result);
       if (result.statusCode === 201) {
         this.superAdminRoleId = result.data.roleId;
         return true;
       } else if (result.statusCode === 409) {
-        const roles = await service.findAll({ name: "SuperAdmin" });
+        const roles = await service.findAll({ name: 'SuperAdmin' });
         if (roles.data.length > 0) {
           this.superAdminRoleId = roles.data[0].roleId;
         }
@@ -46,16 +46,17 @@ export class DDLUtil {
 
       const user: Users = {
         userId: v4(),
-        fullname: "Super Admin",
-        username: "superadmin",
+        fullname: 'Super Admin',
+        username: 'superadmin',
         email: config.default_user.email,
         password: await encryptString(config.default_user.password),
-        role_id: this.superAdminRoleId,
+        roleId: this.superAdminRoleId,
+        role: { roleId: this.superAdminRoleId } as Roles,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       const result = await service.create(user);
-      console.log("Add Default User Result", result);
+      console.log('Add Default User Result', result);
       if (result.statusCode === 201) {
         return true;
       }

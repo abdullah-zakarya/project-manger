@@ -10,16 +10,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Projects = void 0;
+const tasks_entity_1 = require("../../components/tasks/tasks_entity");
 const typeorm_1 = require("typeorm");
 let Projects = class Projects {
     projectId;
     name;
-    user_ids;
+    userIds;
     description;
+    tasks;
 };
 exports.Projects = Projects;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)("uuid", { name: "project_id" }),
+    (0, typeorm_1.PrimaryGeneratedColumn)('uuid', { name: 'project_id' }),
     __metadata("design:type", String)
 ], Projects.prototype, "projectId", void 0);
 __decorate([
@@ -27,13 +29,17 @@ __decorate([
     __metadata("design:type", String)
 ], Projects.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.Column)("simple-array", { default: [] }),
+    (0, typeorm_1.Column)('simple-json', { default: '[]' }),
     __metadata("design:type", Array)
-], Projects.prototype, "user_ids", void 0);
+], Projects.prototype, "userIds", void 0);
 __decorate([
     (0, typeorm_1.Column)({ length: 500 }),
     __metadata("design:type", String)
 ], Projects.prototype, "description", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => tasks_entity_1.Tasks, (task) => task.project),
+    __metadata("design:type", Array)
+], Projects.prototype, "tasks", void 0);
 exports.Projects = Projects = __decorate([
     (0, typeorm_1.Entity)()
 ], Projects);

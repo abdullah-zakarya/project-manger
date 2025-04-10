@@ -40,9 +40,9 @@ const users_controller_1 = require("../components/users/users_controller");
 const roles_controller_1 = require("../components/roles/roles_controller");
 const authorize = async (req, res, next) => {
     try {
-        const token = req.headers.authorization?.split("Bearer ")[1];
-        if (!token) {
-            return res.status(401).json({ message: "Unauthorized" });
+        const [type, token] = req.headers.authorization?.split(' ');
+        if (!token || type !== 'Bearer') {
+            return res.status(401).json({ message: 'Unauthorized' });
         }
         const decodedToken = jwt.verify(token, common_1.SERVER_CONST.JWTSECRET);
         const { username, email } = decodedToken;
@@ -56,7 +56,9 @@ const authorize = async (req, res, next) => {
         next();
     }
     catch (error) {
-        next(new Error("Invalid Token"));
+        res
+            .status(401)
+            .json({ statusCode: 401, status: 'error', message: 'invalid token' });
     }
 };
 exports.authorize = authorize;

@@ -1,10 +1,11 @@
-import { Request, Response } from "express";
-import { BaseController } from "../../utils/base_controller";
-import { Rights } from "../../utils/common";
-import { RolesService } from "./roles_service";
-import { promises } from "dns";
-import { Roles } from "./roles_entity";
-import { ApiResponse } from "../../utils/base_services";
+import { Request, Response } from 'express';
+import { BaseController } from '../../utils/base_controller';
+import { Rights } from '../../utils/common';
+import { RolesService } from './roles_service';
+import { promises } from 'dns';
+import { Roles } from './roles_entity';
+import { ApiResponse } from '../../utils/base_services';
+import { CacheUtil } from '../../utils/cache_util';
 // export class RoleController extends BaseController {
 //   private constructor(service: any) {
 //     super(service);
@@ -31,15 +32,21 @@ export class RoleController {
     res.status(result.statusCode).json(result);
   }
   public async getOneHandler(req: Request, res: Response): Promise<void> {
+    CacheUtil.set('name', '0', 'ahmed');
+    await console.log('', CacheUtil.get('name', '0'));
+
+    // const dataFromCache = await CacheUtil.get('Role', req.params.id);
+    // if (dataFromCache) return res.status(200).json(dataFromCache) && undefined;
     const service = new RolesService();
     const result: ApiResponse<Roles> = await service.findOne(req.params.id);
+    // CacheUtil.set('Role', req.params.id, result);
     res.status(result.statusCode).json(result);
   }
   public async updateHandler(req: Request, res: Response): Promise<void> {
     const service = new RolesService();
     const result: ApiResponse<Roles> = await service.update(
       req.params.id,
-      req.body
+      req.body,
     );
     res.status(result.statusCode).json(result);
   }
@@ -58,9 +65,9 @@ export class RolesUtil {
   public static getAllPermissionsFromRights(): string[] {
     let permissions: string[] = [];
     for (const module in Rights) {
-      if (Rights[module]["ALL"]) {
-        const sectionValuesString = Rights[module]["ALL"];
-        const sectionValues = sectionValuesString.split(",");
+      if (Rights[module]['ALL']) {
+        const sectionValuesString = Rights[module]['ALL'];
+        const sectionValues = sectionValuesString.split(',');
         permissions = [...permissions, ...sectionValues];
       }
     }
@@ -77,7 +84,7 @@ export class RolesUtil {
   }
 
   public static async getAllRightsFromRoles(
-    role_ids: string[]
+    role_ids: string[],
   ): Promise<string[]> {
     const roleService = new RolesService();
     let rights: string[] = [];
@@ -86,7 +93,7 @@ export class RolesUtil {
     const roles: Roles[] = queryData.data ? queryData.data : [];
 
     roles.forEach((role) => {
-      const rightFromRole: string[] = role?.rights?.split(",");
+      const rightFromRole: string[] = role?.rights?.split(',');
       rights = [...new Set<string>(rights.concat(rightFromRole))];
     });
 

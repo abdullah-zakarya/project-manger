@@ -19,6 +19,8 @@ export class BaseService<T extends ObjectLiteral> {
 
   @HandleErrors()
   async create(entity: DeepPartial<T>): Promise<ApiResponse<T>> {
+    console.log('entity', entity);
+
     const createdEntity = this.repository.create(entity);
     const savedEntity = await this.repository.save(createdEntity);
     return { statusCode: 201, status: 'success', data: savedEntity };

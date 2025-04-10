@@ -13,17 +13,17 @@ exports.ProjectsUtil = exports.ProjectController = void 0;
 const projects_service_1 = require("./projects_service");
 const users_controller_1 = require("../users/users_controller");
 const base_controller_1 = require("../../utils/base_controller");
-const permissionHandler_1 = require("utils/permissionHandler");
+const permissionHandler_1 = require("../../utils/permissionHandler");
 class ProjectController extends base_controller_1.BaseController {
     async addHandler(req, res) {
         const service = new projects_service_1.ProjectsService();
         const project = req.body;
-        const isValidUsers = await users_controller_1.UsersUtil.checkValidUserIds(project.user_ids);
+        const isValidUsers = await users_controller_1.UsersUtil.checkValidUserIds(project.userIds);
         if (!isValidUsers) {
             res.status(400).json({
                 statusCode: 400,
-                status: "error",
-                message: "Invalid user_ids",
+                status: 'error',
+                message: 'Invalid userIds',
             });
             return;
         }
@@ -34,16 +34,16 @@ class ProjectController extends base_controller_1.BaseController {
         const service = new projects_service_1.ProjectsService();
         const result = await service.findAll(req.query);
         for (const project of result.data) {
-            project["users"] = await users_controller_1.UsersUtil.getUsernamesById(project.user_ids);
-            delete project.user_ids;
+            project['users'] = await users_controller_1.UsersUtil.getUsernamesById(project.userIds);
+            delete project.userIds;
         }
         res.status(result.statusCode).json(result);
     }
     async getOneHandler(req, res) {
         const service = new projects_service_1.ProjectsService();
         const result = await service.findOne(req.params.id);
-        result.data["users"] = await users_controller_1.UsersUtil.getUsernamesById(result.data.user_ids);
-        delete result.data.user_ids;
+        result.data['users'] = await users_controller_1.UsersUtil.getUsernamesById(result.data.userIds);
+        delete result.data.userIds;
         res.status(result.statusCode).json(result);
     }
     async updateHandler(req, res) {

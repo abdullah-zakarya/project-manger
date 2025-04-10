@@ -55,7 +55,6 @@ class ExpressServer {
         });
         const routes = new routes_1.Routes(app);
         if (routes) {
-            console.log("Server Routes started for server");
         }
         ExpressServer.server = app.listen(port, () => {
             console.log(`Server is running on port ${port} with pid = ${process.pid}`);

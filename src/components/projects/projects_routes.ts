@@ -7,7 +7,7 @@ import { checkValidDate } from '../../utils/common';
 
 const validProjectInput = [
   body('name').exists().trim().notEmpty().withMessage('It should be required'),
-  body('user_ids')
+  body('userIds')
     .exists()
     .isArray()
     .withMessage('It should be ids of users array'),

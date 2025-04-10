@@ -15,6 +15,8 @@ export function HandleErrors() {
         const result = await originalMethod.apply(this, args);
         return result;
       } catch (error: any) {
+        console.log('Error', error);
+
         return {
           statusCode: 500,
           status: 'error',

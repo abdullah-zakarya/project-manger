@@ -5,6 +5,7 @@ import { TasksService } from './tasks_service';
 import { UsersUtil } from '../users/users_controller';
 import { ProjectsUtil } from '../projects/projects_controller';
 import { permissionHandler } from '../../utils/permissionHandler';
+import { CacheUtil } from '../../utils/cache_util';
 
 export class TaskController extends BaseController {
   /**
@@ -23,10 +24,10 @@ export class TaskController extends BaseController {
 
       //check if the provided project_id is valid
       const isValidProject = await ProjectsUtil.checkValidProjectIds([
-        task.project_id,
+        task.projectId,
       ]);
       if (!isValidProject) {
-        // If user_ids are invalid, send an error response
+        // If userIds are invalid, send an error response
         res.status(400).json({
           statusCode: 400,
           status: 'error',
@@ -36,10 +37,10 @@ export class TaskController extends BaseController {
       }
 
       // Check if the provided user_id is valid
-      const isValidUser = await UsersUtil.checkValidUserIds([task.user_id]);
+      const isValidUser = await UsersUtil.checkValidUserIds([task.userId]);
 
       if (!isValidUser) {
-        // If user_ids are invalid, send an error response
+        // If userIds are invalid, send an error response
         res.status(400).json({
           statusCode: 400,
           status: 'error',
@@ -48,7 +49,7 @@ export class TaskController extends BaseController {
         return;
       }
 
-      // If user_ids are valid, create the user
+      // If userIds are valid, create the user
       const createdTask = await service.create(task);
       res.status(201).json(createdTask);
     } catch (error) {
@@ -69,10 +70,14 @@ export class TaskController extends BaseController {
     res.status(result.statusCode).json(result);
   }
 
-  @permissionHandler()
+  // @permissionHandler()
   public async getOneHandler(req: Request, res: Response): Promise<void> {
+    // const dataFromCache = await CacheUtil.get('Task', req.params.id);
+    // if (dataFromCache) return res.status(200).json(dataFromCache) && undefined;
     const service = new TasksService();
     const result = await service.findOne(req.params.id);
+    // console.log('result', result);
+    // CacheUtil.set('Task', req.params.id, result);
     res.status(result.statusCode).json(result);
   }
 

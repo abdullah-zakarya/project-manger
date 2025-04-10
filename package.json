@@ -4,7 +4,7 @@
   "main": "main.ts",
   "scripts": {
     "start": "nodemon ./src/main.ts",
-    "init": "tsc && node ./src/main.ts --init"
+    "init": "tsc && node ./dist/src/main.js --init"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,7 @@
     "nodemon": "^3.1.9",
     "pg": "^8.13.1",
     "prettier": "^3.4.2",
+    "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
     "rides": "^1.0.0",
     "ts-node": "^10.9.2",

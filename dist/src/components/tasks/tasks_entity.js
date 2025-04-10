@@ -30,6 +30,7 @@ let Tasks = class Tasks {
     name;
     description;
     projectId;
+    project;
     userId;
     estimatedStartTime;
     estimatedEndTime;
@@ -43,7 +44,7 @@ let Tasks = class Tasks {
 };
 exports.Tasks = Tasks;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)("uuid", { name: "task_id" }),
+    (0, typeorm_1.PrimaryGeneratedColumn)('uuid', { name: 'task_id' }),
     __metadata("design:type", String)
 ], Tasks.prototype, "taskId", void 0);
 __decorate([
@@ -55,36 +56,38 @@ __decorate([
     __metadata("design:type", String)
 ], Tasks.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: "project_id" }),
-    (0, typeorm_1.ManyToOne)(() => projects_entity_1.Projects, (projectData) => projectData.projectId),
-    (0, typeorm_1.JoinColumn)({ name: "project_id" }),
+    (0, typeorm_1.Column)({ name: 'project_id' }),
     __metadata("design:type", String)
 ], Tasks.prototype, "projectId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: "user_id" }),
+    (0, typeorm_1.ManyToOne)(() => projects_entity_1.Projects, (project) => project.tasks),
+    (0, typeorm_1.JoinColumn)({ name: 'project_id' }),
+    __metadata("design:type", projects_entity_1.Projects)
+], Tasks.prototype, "project", void 0);
+__decorate([
     (0, typeorm_1.ManyToOne)(() => users_entity_1.Users, (userData) => userData.userId),
-    (0, typeorm_1.JoinColumn)({ name: "user_id" }),
+    (0, typeorm_1.JoinColumn)({ name: 'user_id' }),
     __metadata("design:type", String)
 ], Tasks.prototype, "userId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: "estimated_start_time" }),
+    (0, typeorm_1.Column)({ name: 'estimated_start_time' }),
     __metadata("design:type", Date)
 ], Tasks.prototype, "estimatedStartTime", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: "estimated_end_time" }),
+    (0, typeorm_1.Column)({ name: 'estimated_end_time' }),
     __metadata("design:type", Date)
 ], Tasks.prototype, "estimatedEndTime", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: "actual_start_time" }),
+    (0, typeorm_1.Column)({ name: 'actual_start_time' }),
     __metadata("design:type", Date)
 ], Tasks.prototype, "actualStartTime", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ name: "actual_end_time" }),
+    (0, typeorm_1.Column)({ name: 'actual_end_time' }),
     __metadata("design:type", Date)
 ], Tasks.prototype, "actualEndTime", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: "enum",
+        type: 'enum',
         enum: Priority,
         default: Priority.Low,
     }),
@@ -92,22 +95,22 @@ __decorate([
 ], Tasks.prototype, "priority", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: "enum",
+        type: 'enum',
         enum: Status,
         default: Status.NotStarted,
     }),
     __metadata("design:type", String)
 ], Tasks.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)("text", { array: true, default: [], name: "supported_files" }),
+    (0, typeorm_1.Column)('text', { array: true, default: [], name: 'supported_files' }),
     __metadata("design:type", Array)
 ], Tasks.prototype, "supportedFiles", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ name: "createdAT" }),
+    (0, typeorm_1.CreateDateColumn)({ name: 'createdAT' }),
     __metadata("design:type", Date)
 ], Tasks.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)({ name: "updatedAT" }),
+    (0, typeorm_1.UpdateDateColumn)({ name: 'updatedAT' }),
     __metadata("design:type", Date)
 ], Tasks.prototype, "updatedAt", void 0);
 exports.Tasks = Tasks = __decorate([

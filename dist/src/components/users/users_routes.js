@@ -57,6 +57,7 @@ class UserRoutes {
         const controller = new users_controller_1.UserController();
         app
             .route(this.baseEndPoint)
+            .all(auth_utils_1.authorize)
             .get(controller.getAllHandler)
             .post((0, validator_1.validate)(validUserInput), controller.addHandler);
         app
@@ -65,9 +66,9 @@ class UserRoutes {
             .get(controller.getOneHandler)
             .put((0, validator_1.validate)(updateValidUserInput), controller.updateHandler)
             .delete(controller.deleteHandler);
-        app.route("/api/login").post(controller.login);
+        app.route("/api/v1/login").post(controller.login);
         app
-            .route("/api/refresh_token")
+            .route("/api/v1/refresh_token")
             .post(controller.getAccessTokenFromRefreshToken);
         app
             .route(this.baseEndPoint + "/changePassword/:id")

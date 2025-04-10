@@ -168,6 +168,7 @@ export class UserController extends BaseController {
   ): Promise<void> {
     // Get the refresh token from the request body
     const refreshToken = req.body.refreshToken;
+    console.log('refreshToken', refreshToken);
 
     // Verify the refresh token
     jwt.verify(refreshToken, SERVER_CONST.JWTSECRET, (err, user) => {
@@ -180,12 +181,16 @@ export class UserController extends BaseController {
         });
         return;
       }
-      // getting the user is missing here
 
-      // Generate a new access token using user information from the refresh token
-      const accessToken = jwt.sign(user, SERVER_CONST.JWTSECRET, {
-        expiresIn: SERVER_CONST.ACCESS_TOKEN_EXPIRY_TIME_SECONDS,
-      });
+      // Get the user information from the verified token
+      const { email, username } = user;
+
+      // Generate a new access token using user information
+      const accessToken = jwt.sign(
+        { email, username },
+        SERVER_CONST.JWTSECRET,
+        { expiresIn: SERVER_CONST.ACCESS_TOKEN_EXPIRY_TIME_SECONDS },
+      );
 
       // Respond with the new access token
       res
@@ -395,20 +400,20 @@ export class UsersUtil {
     return null;
   }
 
-  public static async checkValidUserIds(user_ids: string[]) {
+  public static async checkValidUserIds(userIds: string[]) {
     const userService = new UsersService();
 
-    // Query the database to check if all user_ids are valid
-    const users = await userService.findByIds(user_ids);
+    // Query the database to check if all userIds are valid
+    const users = await userService.findByIds(userIds);
 
-    // Check if all user_ids are found in the database
-    return users.data.length === user_ids.length;
+    // Check if all userIds are found in the database
+    return users.data.length === userIds.length;
   }
-  public static async getUsernamesById(user_ids: string[]) {
+  public static async getUsernamesById(userIds: string[]) {
     const userService = new UsersService();
 
-    // Query the database to check if all user_ids are valid
-    const queryResult = await userService.findByIds(user_ids);
+    // Query the database to check if all userIds are valid
+    const queryResult = await userService.findByIds(userIds);
     if (queryResult.statusCode === 200) {
       const users = queryResult.data;
       const usernames = users.map((i) => {
